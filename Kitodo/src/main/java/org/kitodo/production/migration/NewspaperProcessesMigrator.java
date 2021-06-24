@@ -178,8 +178,8 @@ public class NewspaperProcessesMigrator {
     private DatesSimpleMetadataViewInterface yearSimpleMetadataView;
 
     /**
-     * The years of the course of appearance of the newspaper with their logical
-     * root elements.
+     * The years of the course of appearance of the newspaper with their
+     * logical structures.
      */
     private Map<String, LogicalDivision> years = new TreeMap<>();
 
@@ -302,7 +302,7 @@ public class NewspaperProcessesMigrator {
 
         Workpiece workpiece = metsService.loadWorkpiece(metadataFilePath);
         workpiece.setId(process.getId().toString());
-        LogicalDivision newspaperLogicalDivision = workpiece.getRootElement();
+        LogicalDivision newspaperLogicalDivision = workpiece.getLogicalStructure();
 
         if (Objects.isNull(title)) {
             initializeMigrator(process, newspaperLogicalDivision.getType());
@@ -311,10 +311,10 @@ public class NewspaperProcessesMigrator {
         LogicalDivision yearLogicalDivision = cutOffTopLevel(newspaperLogicalDivision);
         final String year = createLinkStructureAndCopyDates(process, yearFilePath, yearLogicalDivision);
 
-        workpiece.setRootElement(cutOffTopLevel(yearLogicalDivision));
+        workpiece.setLogicalStructure(cutOffTopLevel(yearLogicalDivision));
         metsService.saveWorkpiece(workpiece, metadataFilePath);
 
-        for (Metadata metadata : metsService.loadWorkpiece(anchorFilePath).getRootElement().getMetadata()) {
+        for (Metadata metadata : metsService.loadWorkpiece(anchorFilePath).getLogicalStructure().getMetadata()) {
             if (!overallMetadata.contains(metadata)) {
                 logger.debug("Adding metadata to newspaper {}: {}", title, metadata);
                 overallMetadata.add(metadata);
@@ -376,7 +376,7 @@ public class NewspaperProcessesMigrator {
             throws IOException {
 
         LogicalDivision yearFileYearLogicalDivision = metsService.loadWorkpiece(yearMetadata)
-                .getRootElement().getChildren().get(0);
+                .getLogicalStructure().getChildren().get(0);
         String year = MetadataEditor.getMetadataValue(yearFileYearLogicalDivision, FIELD_TITLE_SORT);
         if (Objects.isNull(year) || !year.matches(YEAR_OR_DOUBLE_YEAR)) {
             logger.debug("\"{}\" is not a year number. Falling back to {}.", year, FIELD_TITLE);
@@ -528,11 +528,11 @@ public class NewspaperProcessesMigrator {
         processGenerator.generateProcess(templateId, projectId);
         overallProcess = processGenerator.getGeneratedProcess();
         overallProcess.setTitle(getTitle());
-        ProcessService.checkTasks(overallProcess, overallWorkpiece.getRootElement().getType());
+        ProcessService.checkTasks(overallProcess, overallWorkpiece.getLogicalStructure().getType());
         processService.saveToDatabase(overallProcess);
         ServiceManager.getFileService().createProcessLocation(overallProcess);
         overallWorkpiece.setId(overallProcess.getId().toString());
-        overallWorkpiece.getRootElement().getMetadata().addAll(overallMetadata);
+        overallWorkpiece.getLogicalStructure().getMetadata().addAll(overallMetadata);
         addToBatch(overallProcess);
 
         logger.info("Process {} (ID {}) successfully created.", overallProcess.getTitle(), overallProcess.getId());
@@ -567,7 +567,7 @@ public class NewspaperProcessesMigrator {
         ProcessService.checkTasks(yearProcess, yearToCreate.getValue().getType());
         processService.saveToDatabase(yearProcess);
 
-        MetadataEditor.addLink(overallWorkpiece.getRootElement(), yearProcess.getId());
+        MetadataEditor.addLink(overallWorkpiece.getLogicalStructure(), yearProcess.getId());
         if (!yearsIterator.hasNext()) {
             metsService.saveWorkpiece(overallWorkpiece, fileService.getMetadataFilePath(overallProcess, false, false));
         }
@@ -601,14 +601,14 @@ public class NewspaperProcessesMigrator {
                                      Process yearProcess) throws IOException {
         Workpiece yearWorkpiece = new Workpiece();
         yearWorkpiece.setId(yearProcess.getId().toString());
-        yearWorkpiece.setRootElement(yearToCreate.getValue());
+        yearWorkpiece.setLogicalStructure(yearToCreate.getValue());
         StructuralElementViewInterface newspaperView = rulesetManagement.getStructuralElementView(
-            yearWorkpiece.getRootElement().getType(), acquisitionStage, Locale.LanguageRange.parse("de"));
+            yearWorkpiece.getLogicalStructure().getType(), acquisitionStage, Locale.LanguageRange.parse("de"));
         final Collection<String> processTitleKeys = rulesetManagement.getFunctionalKeys(FunctionalMetadata.PROCESS_TITLE);
         newspaperView.getAllowedMetadata().parallelStream().filter(SimpleMetadataViewInterface.class::isInstance)
                 .map(SimpleMetadataViewInterface.class::cast)
                 .filter(metadataView -> processTitleKeys.contains(metadataView.getId())).collect(Collectors.toList())
-                .forEach(yearView -> MetadataEditor.writeMetadataEntry(yearWorkpiece.getRootElement(), yearView, yearTitle));
+                .forEach(yearView -> MetadataEditor.writeMetadataEntry(yearWorkpiece.getLogicalStructure(), yearView, yearTitle));
         metsService.saveWorkpiece(yearWorkpiece, fileService.getMetadataFilePath(yearProcess, false, false));
     }
 

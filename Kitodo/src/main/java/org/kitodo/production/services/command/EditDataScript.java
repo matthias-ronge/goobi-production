@@ -125,7 +125,7 @@ public abstract class EditDataScript {
                 .readMetadataFile(parentProcess);
         Workpiece workpiece = metadataFile.getWorkpiece();
 
-        Collection<Metadata> metadataCollection = workpiece.getRootElement().getMetadata();;
+        Collection<Metadata> metadataCollection = workpiece.getLogicalStructure().getMetadata();;
         generateValueForMetadataScript(metadataScript, metadataCollection, parentProcess, metadataFile);
     }
 }
