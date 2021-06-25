@@ -411,7 +411,7 @@ public class AddDocStrucTypeDialog {
         checkSelectedLogicalNode();
         Optional<LogicalDivision> selectedStructure = dataEditor.getSelectedStructure();
         if (selectedStructure.isPresent()) {
-            this.parents = MetadataEditor.getAncestorsOfStructure(selectedStructure.get(),
+            this.parents = MetadataEditor.getAncestorsOfLogicalDivision(selectedStructure.get(),
                 dataEditor.getWorkpiece().getLogicalStructure());
             prepareDocStructPositionSelectionItems(parents.isEmpty());
             prepareSelectAddableMetadataTypesItems(true);
@@ -444,7 +444,7 @@ public class AddDocStrucTypeDialog {
     public void prepareDocStructTypes() {
         Optional<LogicalDivision> selectedStructure = dataEditor.getSelectedStructure();
         if (selectedStructure.isPresent()) {
-            this.parents = MetadataEditor.getAncestorsOfStructure(selectedStructure.get(),
+            this.parents = MetadataEditor.getAncestorsOfLogicalDivision(selectedStructure.get(),
                     dataEditor.getWorkpiece().getLogicalStructure());
             if (parents.isEmpty()) {
                 docStructAddTypeSelectionItemsForParent = Collections.emptyList();
